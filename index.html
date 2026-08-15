@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Hucinty</title>
+  <title>Aesthetic Ambience - YouTube Audio Player</title>
 
   <!-- Tailwind CSS & 20 Aesthetic Google Fonts -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -15,9 +15,6 @@
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
-  <!-- YouTube IFrame API -->
-  <script src="https://www.youtube.com/iframe_api"></script>
 
   <style>
     html, body {
@@ -33,8 +30,6 @@
     .safe-bottom {
       padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
     }
-
-    /* Glow Keyframes */
     @keyframes subtlePulse {
       0%, 100% { transform: scale(1); opacity: 0.95; }
       50% { transform: scale(1.02); opacity: 1; }
@@ -47,12 +42,12 @@
 <body class="bg-stone-950 text-white select-none m-0 p-0 font-sans">
   <div id="root" class="h-full w-full"></div>
 
+  <!-- Load YouTube API script globally -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+
   <script type="text/babel">
     const { useState, useEffect, useRef, useMemo } = React;
 
-    const BG_VIDEOS = Array.from({ length: 42 }, (_, i) => `./videos/bg_${i + 1}.mp4`);
-
-    // 20 Distinct Aesthetic Typography Styles
     const TYPOGRAPHY_STYLES = [
       { id: 1, name: "Cinzel Gold", font: "'Cinzel', serif", styleClass: "text-amber-300 font-bold uppercase tracking-widest drop-shadow-[0_4px_16px_rgba(251,191,36,0.5)]" },
       { id: 2, name: "Neon Cyber", font: "'Orbitron', sans-serif", styleClass: "text-cyan-300 font-black tracking-widest drop-shadow-[0_0_15px_rgba(34,211,238,0.8)] uppercase" },
@@ -65,7 +60,7 @@
       { id: 9, name: "Typewriter Prime", font: "'Courier Prime', monospace", styleClass: "text-green-400 font-bold tracking-tight drop-shadow-[0_0_10px_rgba(74,222,128,0.5)]" },
       { id: 10, name: "Righteous Synth", font: "'Righteous', cursive", styleClass: "text-fuchsia-400 font-normal tracking-wider drop-shadow-[0_0_15px_rgba(232,121,249,0.7)]" },
       { id: 11, name: "Street Marker", font: "'Permanent Marker', cursive", styleClass: "text-orange-400 font-normal tracking-wide drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]" },
-      { id: 12, name: "Modern Editorial", font: "'DM Serif Display', serif", styleClass: "text-amber-100 italic font-normal drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]" },
+      { id: 12, name: "Modern Editorial", font: "'DM Serif Display', serif", styleClass: "text-amber-100 italic font-normal drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] text-2xl sm:text-4xl" },
       { id: 13, name: "Minimal Mono", font: "'Major Mono Display', monospace", styleClass: "text-teal-200 lowercase tracking-widest drop-shadow-[0_0_12px_rgba(153,246,228,0.6)]" },
       { id: 14, name: "Pixel Retro", font: "'VT323', monospace", styleClass: "text-lime-400 font-normal tracking-widest text-2xl sm:text-3xl drop-shadow-[0_0_10px_rgba(163,230,53,0.7)]" },
       { id: 15, name: "Heavy Montserrat", font: "'Montserrat', sans-serif", styleClass: "text-stone-100 font-black uppercase italic tracking-tighter drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)]" },
@@ -82,6 +77,7 @@
         title: "Aankhon Mein Tera Hi Chehra",
         artist: "Aryans",
         youtubeId: "V3vSJyHWFEw",
+        bgVideo: "./videos/bg_1.mp4",
         lyrics: [
           { time: 0, text: "♪ (Intro Instrumental) ♪" },
           { time: 22, text: "Aankhon mein tera hi chehra" },
@@ -100,12 +96,13 @@
         title: "Jahaan Tum Ho",
         artist: "Shrey Singhal",
         youtubeId: "Hxe362w66GI",
+        bgVideo: "./videos/bg_2.mp4",
         lyrics: [
           { time: 0, text: "♪ (Music) ♪" },
           { time: 23, text: "Jahaan tum ho wahin main hoon" },
           { time: 30, text: "Tere na hone se lagta hai main kyun nahi..." },
           { time: 39, text: "Tere hone se jeeta hai dil mera" },
-          { time: 47, text: "Tu hi मेरा dil hai, tu hi meri jaan" },
+          { time: 47, text: "Tu hi mera dil hai, tu hi meri jaan" },
           { time: 58, text: "Tu hi mera kal hai, tu hi mera aaj" },
           { time: 71, text: "Subah ki kirno si jo hai..." }
         ]
@@ -115,6 +112,7 @@
         title: "Teri Yaadein",
         artist: "Atif Aslam",
         youtubeId: "eafo6MoqDPw",
+        bgVideo: "./videos/bg_3.mp4",
         lyrics: [
           { time: 0, text: "♪ (Intro Melodies) ♪" },
           { time: 14, text: "Teri yaadein mulaqaatein..." },
@@ -129,6 +127,7 @@
         title: "Tu Mile Dil Khile",
         artist: "Kumar Sanu & Alka Yagnik",
         youtubeId: "nqTS7ngviwQ",
+        bgVideo: "./videos/bg_4.mp4",
         lyrics: [
           { time: 0, text: "♪ (Melody) ♪" },
           { time: 45, text: "Tu mile dil khile aur jeene ko kya chahiye..." },
@@ -143,6 +142,7 @@
         title: "Tum To Thehre Pardesi",
         artist: "Altaf Raja",
         youtubeId: "HaqGZcvbt1U",
+        bgVideo: "./videos/bg_5.mp4",
         lyrics: [
           { time: 0, text: "♪ (Qawwali Beats) ♪" },
           { time: 40, text: "Tum to thehre pardesi, saath kya nibhaoge..." },
@@ -157,6 +157,7 @@
         title: "Pyaar Tune Kya Kiya",
         artist: "Jubin Nautiyal",
         youtubeId: "gC84vJf0xeU",
+        bgVideo: "./videos/bg_6.mp4",
         lyrics: [
           { time: 0, text: "♪ (Theme Music) ♪" },
           { time: 20, text: "Pyaar tune kya kiya, chain mera liya..." },
@@ -170,6 +171,7 @@
         title: "Chale Aana",
         artist: "Armaan Malik & Amaal Mallik",
         youtubeId: "fWQpb6T89d4",
+        bgVideo: "./videos/bg_7.mp4",
         lyrics: [
           { time: 0, text: "♪ (Soft Piano) ♪" },
           { time: 31, text: "Juda hum ho gaye maana magar ye jaan lo jaana" },
@@ -183,6 +185,7 @@
         title: "Mann Mera",
         artist: "Gajendra Verma",
         youtubeId: "HP2zqQsrsyg",
+        bgVideo: "./videos/bg_8.mp4",
         lyrics: [
           { time: 0, text: "♪ (Acoustic Strums) ♪" },
           { time: 18, text: "Surmayi aankhiyon mein nanha munna ek sapna de jaa re" },
@@ -196,6 +199,7 @@
         title: "Maine Royaan",
         artist: "Tanveer Evan",
         youtubeId: "o7In7se2Kl4",
+        bgVideo: "./videos/bg_9.mp4",
         lyrics: [
           { time: 0, text: "♪ (Melancholy Strings) ♪" },
           { time: 37, text: "Maine royaan, tujhe dhoondha..." },
@@ -209,6 +213,7 @@
         title: "Tera Ghata",
         artist: "Gajendra Verma",
         youtubeId: "0KNk-Joi-NM",
+        bgVideo: "./videos/bg_10.mp4",
         lyrics: [
           { time: 0, text: "♪ (Guitar Rhythm) ♪" },
           { time: 34, text: "Kuchh soch ke bola hoga tumne, yeh pyaar bhi tola hoga tumne" },
@@ -222,6 +227,7 @@
         title: "Tujhe Bhula Diya",
         artist: "Mohit Chauhan & Shekhar Ravjiani",
         youtubeId: "M1JZOQ8-vRU",
+        bgVideo: "./videos/bg_11.mp4",
         lyrics: [
           { time: 0, text: "♪ (Strings & Rain) ♪" },
           { time: 15, text: "Naina laggeyan baarishein, ate sukke sukke sapne vi pijj gaye" },
@@ -235,6 +241,7 @@
         title: "Tujhe Dekhe Bina",
         artist: "Rakesh Sutradhar",
         youtubeId: "mGFlSPG6ZKc",
+        bgVideo: "./videos/bg_12.mp4",
         lyrics: [
           { time: 0, text: "♪ (Acoustic Chords) ♪" },
           { time: 19, text: "Tujhe dekhe bina chain nahi aata..." },
@@ -247,6 +254,7 @@
         title: "Dard",
         artist: "Kushagra & Showkidd",
         youtubeId: "tJ51nR4-tLs",
+        bgVideo: "./videos/bg_13.mp4",
         lyrics: [
           { time: 0, text: "♪ (Beats) ♪" },
           { time: 9, text: "Dard hua dard hua, dil ko thoda dard hua" },
@@ -259,6 +267,7 @@
         title: "Aaja We Mahiya",
         artist: "Imran Khan",
         youtubeId: "BJtbYaVwyEI",
+        bgVideo: "./videos/bg_14.mp4",
         lyrics: [
           { time: 0, text: "♪ (Drift Waves) ♪" },
           { time: 18, text: "Aaja we mahiya, aaja we mahiya..." },
@@ -271,6 +280,7 @@
         title: "Rula Ke Gaya Ishq",
         artist: "Stebin Ben",
         youtubeId: "g-C8QJH-NWI",
+        bgVideo: "./videos/bg_15.mp4",
         lyrics: [
           { time: 0, text: "♪ (Romantic Sad Melody) ♪" },
           { time: 26, text: "Kaash tu mere haq mein hota, banke yakeen shak mein hota" },
@@ -283,12 +293,9 @@
     function App() {
       const [playlist] = useState(YOUTUBE_PLAYLIST);
       const [currentIndex, setCurrentIndex] = useState(0);
-      const [videoIndex, setVideoIndex] = useState(0);
-      
-      // Default to Style 12: Modern Editorial (index 11)
-      const [fontIndex, setFontIndex] = useState(11);
-      
+      const [fontIndex, setFontIndex] = useState(11); // Modern Editorial default
       const [isPlaying, setIsPlaying] = useState(false);
+      const [hasStarted, setHasStarted] = useState(false);
       const [isShuffle, setIsShuffle] = useState(false);
       const [currentTime, setCurrentTime] = useState(0);
       const [duration, setDuration] = useState(0);
@@ -302,53 +309,59 @@
       const currentTrack = playlist[currentIndex];
       const currentTypography = TYPOGRAPHY_STYLES[fontIndex];
 
-      // YouTube API Initialization
-      useEffect(() => {
-        const setupYouTube = () => {
-          if (window.YT && window.YT.Player) {
-            ytPlayerRef.current = new window.YT.Player("yt-hidden-audio", {
-              height: "1",
-              width: "1",
-              videoId: currentTrack.youtubeId,
-              playerVars: {
-                autoplay: 0,
-                controls: 0,
-                disablekb: 1,
-                fs: 0,
-                modestbranding: 1,
-                playsinline: 1
-              },
-              events: {
-                onReady: (e) => {
-                  setDuration(e.target.getDuration() || 180);
-                },
-                onStateChange: (e) => {
-                  if (e.data === window.YT.PlayerState.PLAYING) {
-                    setIsPlaying(true);
-                    setDuration(e.target.getDuration() || 180);
-                    if (videoRef.current) videoRef.current.play().catch(() => {});
-                  } else if (e.data === window.YT.PlayerState.PAUSED) {
-                    setIsPlaying(false);
-                    if (videoRef.current) videoRef.current.pause();
-                  } else if (e.data === window.YT.PlayerState.ENDED) {
-                    changeTrack("next");
-                  }
-                }
+      // Safe YT player creation
+      const initPlayer = () => {
+        if (!window.YT || !window.YT.Player || ytPlayerRef.current) return;
+
+        ytPlayerRef.current = new window.YT.Player("yt-frame", {
+          height: "200",
+          width: "200",
+          videoId: currentTrack.youtubeId,
+          playerVars: {
+            autoplay: 1,
+            controls: 0,
+            disablekb: 1,
+            enablejsapi: 1,
+            playsinline: 1,
+            rel: 0
+          },
+          events: {
+            onReady: (e) => {
+              setDuration(e.target.getDuration() || 180);
+              e.target.playVideo();
+            },
+            onStateChange: (e) => {
+              if (e.data === window.YT.PlayerState.PLAYING) {
+                setIsPlaying(true);
+                setDuration(e.target.getDuration() || 180);
+                if (videoRef.current) videoRef.current.play().catch(() => {});
+              } else if (e.data === window.YT.PlayerState.PAUSED) {
+                setIsPlaying(false);
+                if (videoRef.current) videoRef.current.pause();
+              } else if (e.data === window.YT.PlayerState.ENDED) {
+                changeTrack("next");
               }
-            });
+            },
+            onError: () => {
+              // Automatically skip tracks with restriction errors
+              changeTrack("next");
+            }
           }
-        };
+        });
+      };
 
-        if (!window.YT) {
-          window.onYouTubeIframeAPIReady = setupYouTube;
-        } else {
-          setupYouTube();
-        }
-
-        return () => {
-          if (ytPlayerRef.current?.destroy) ytPlayerRef.current.destroy();
-        };
-      }, []);
+      // Poll for YouTube API readiness
+      useEffect(() => {
+        const interval = setInterval(() => {
+          if (window.YT && window.YT.Player) {
+            clearInterval(interval);
+            if (hasStarted) {
+              initPlayer();
+            }
+          }
+        }, 100);
+        return () => clearInterval(interval);
+      }, [hasStarted]);
 
       // Polling loop for lyric sync
       useEffect(() => {
@@ -358,30 +371,40 @@
               const time = ytPlayerRef.current.getCurrentTime();
               setCurrentTime(time || 0);
             }
-          }, 150);
+          }, 100);
         } else {
           clearInterval(timerRef.current);
         }
         return () => clearInterval(timerRef.current);
       }, [isPlaying]);
 
-      // Video source update on track change
+      // Load Track on Playlist Change
       useEffect(() => {
         if (ytPlayerRef.current?.loadVideoById) {
           ytPlayerRef.current.loadVideoById(currentTrack.youtubeId);
           setCurrentTime(0);
-          if (isPlaying) {
-            ytPlayerRef.current.playVideo();
-          }
+          ytPlayerRef.current.playVideo();
         }
       }, [currentIndex]);
 
+      // First-tap unlocker for mobile browser policy
+      const handleFirstClick = () => {
+        setHasStarted(true);
+        if (videoRef.current) videoRef.current.play().catch(() => {});
+        initPlayer();
+      };
+
       const togglePlay = () => {
+        if (!hasStarted) {
+          handleFirstClick();
+          return;
+        }
         if (!ytPlayerRef.current) return;
         if (isPlaying) {
           ytPlayerRef.current.pauseVideo();
         } else {
           ytPlayerRef.current.playVideo();
+          if (videoRef.current) videoRef.current.play().catch(() => {});
         }
       };
 
@@ -391,7 +414,7 @@
           nextIdx = Math.floor(Math.random() * playlist.length);
         } else {
           nextIdx = direction === "next" 
-            ? (currentIndex + 1) % playlist.length
+            ? (currentIndex + 1) % playlist.length 
             : (currentIndex - 1 + playlist.length) % playlist.length;
         }
         setCurrentIndex(nextIdx);
@@ -417,18 +440,13 @@
         }
       };
 
-      const nextBackgroundVideo = (e) => {
-        e.stopPropagation();
-        setVideoIndex((prev) => (prev + 1) % BG_VIDEOS.length);
-      };
-
       const nextTypography = (e) => {
         e.stopPropagation();
         setFontIndex((prev) => (prev + 1) % TYPOGRAPHY_STYLES.length);
       };
 
-      const handleTouchStart = (e) => { 
-        touchStartY.current = e.touches[0].clientY; 
+      const handleTouchStart = (e) => {
+        touchStartY.current = e.touches[0].clientY;
       };
 
       const handleTouchEnd = (e) => {
@@ -437,7 +455,6 @@
         else if (diffY < -60) changeTrack("prev");
       };
 
-      // Realtime lyric tracker
       const { activeText, nextText } = useMemo(() => {
         if (!currentTrack?.lyrics || currentTrack.lyrics.length === 0) {
           return { activeText: "♪ Playing Audio ♪", nextText: "" };
@@ -470,27 +487,41 @@
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          {/* YouTube Hidden Audio Node */}
-          <div className="absolute -top-[9999px] -left-[9999px] opacity-0 pointer-events-none" aria-hidden="true">
-            <div id="yt-hidden-audio"></div>
+          {/* YouTube Player Node (Positioned in DOM under the video) */}
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.001] flex items-center justify-center overflow-hidden">
+            <div id="yt-frame"></div>
           </div>
 
-          {/* Background Video Layer */}
-          <video
-            ref={videoRef}
-            key={BG_VIDEOS[videoIndex]}
-            src={BG_VIDEOS[videoIndex]}
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-            autoPlay
-            loop
-            muted
-            playsInline
+          {/* Background Video Layer mapped to current song */}
+          <video 
+            ref={videoRef} 
+            key={currentTrack.bgVideo} 
+            src={currentTrack.bgVideo} 
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0" 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
           />
 
-          {/* Ambient Vignette & Screen Tap */}
+          {/* Initial Tap to Start Overlay (Bypasses Browser Autoplay Lock) */}
+          {!hasStarted && (
+            <div 
+              onClick={handleFirstClick}
+              className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center cursor-pointer p-4 text-center"
+            >
+              <div className="w-16 h-16 rounded-full bg-amber-400 text-stone-950 flex items-center justify-center shadow-lg animate-pulse mb-3">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" className="ml-1"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+              <h2 className="text-lg font-bold text-amber-300 uppercase tracking-widest">Tap to Play Music</h2>
+              <p className="text-xs text-neutral-400 mt-1">Enables audio & synced visuals</p>
+            </div>
+          )}
+
+          {/* Screen Tap Play/Pause Zone */}
           <div 
-            className="absolute inset-0 bg-gradient-to-b from-stone-950/75 via-stone-950/30 to-stone-950/90 cursor-pointer"
-            onClick={togglePlay}
+            className="absolute inset-0 bg-gradient-to-b from-stone-950/75 via-stone-950/30 to-stone-950/90 cursor-pointer z-10"
+            onClick={togglePlay} 
           />
 
           {/* Top Header */}
@@ -501,34 +532,31 @@
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Typography Switcher Button */}
               <button 
-                onClick={nextTypography}
-                className="bg-black/60 hover:bg-black/80 border border-amber-400/40 active:scale-95 text-amber-300 font-semibold px-2.5 sm:px-3.5 py-1 rounded-full text-[11px] sm:text-xs transition backdrop-blur-md flex items-center gap-1.5 shadow-lg"
+                onClick={nextTypography} 
+                className="bg-black/60 hover:bg-black/80 border border-amber-400/40 active:scale-95 text-amber-300 font-semibold px-2.5 sm:px-3.5 py-1 rounded-full text-[11px] sm:text-xs transition backdrop-blur-md flex items-center gap-1.5 shadow-lg" 
                 title="Change Typography Style"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
                 <span className="max-w-[85px] sm:max-w-[120px] truncate">{currentTypography.name}</span>
               </button>
 
-              {/* Background Video Switcher */}
-              <button 
-                onClick={nextBackgroundVideo}
-                className="bg-black/60 hover:bg-black/80 border border-white/20 active:scale-95 text-neutral-300 font-medium px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs transition backdrop-blur-md flex items-center gap-1"
-                title="Switch Background Video"
+              <div 
+                className="bg-black/60 border border-white/20 text-neutral-300 font-medium px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs backdrop-blur-md flex items-center gap-1"
+                title="Current Background Video"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-                <span>#{videoIndex + 1}</span>
-              </button>
+                <span>bg_{currentIndex + 1}</span>
+              </div>
             </div>
           </header>
 
-          {/* ================= CENTER SYNCHRONIZED LYRICS ================= */}
-          <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 text-center pointer-events-none my-auto">
+          {/* Center Synchronized Lyrics */}
+          <main className="relative z-20 flex-1 flex flex-col items-center justify-center px-6 text-center pointer-events-none my-auto">
             <div className="max-w-2xl flex flex-col items-center gap-3 transition-all duration-500">
               <h1 
-                key={activeText}
-                style={{ fontFamily: currentTypography.font }}
+                key={activeText} 
+                style={{ fontFamily: currentTypography.font }} 
                 className={`text-2xl sm:text-4xl md:text-5xl leading-tight sm:leading-snug transition-all duration-300 lyric-active ${currentTypography.styleClass}`}
               >
                 {activeText}
@@ -536,7 +564,7 @@
 
               {nextText && (
                 <p 
-                  style={{ fontFamily: currentTypography.font }}
+                  style={{ fontFamily: currentTypography.font }} 
                   className="text-sm sm:text-lg md:text-xl text-white/40 tracking-wider font-light italic mt-1 line-clamp-1 transition-opacity duration-300"
                 >
                   {nextText}
@@ -545,13 +573,11 @@
             </div>
           </main>
 
-          {/* ================= BOTTOM MUSIC CONTROLS (SVG ICONS) ================= */}
+          {/* Bottom Music Controls */}
           <footer className="relative z-20 safe-bottom px-4 sm:px-6 flex flex-col gap-3 bg-gradient-to-t from-black via-black/85 to-transparent pb-4">
-            
-            {/* Progress Bar & Timestamps */}
             <div className="w-full flex flex-col gap-1">
               <div 
-                className="w-full h-4 flex items-center cursor-pointer touch-none"
+                className="w-full h-4 flex items-center cursor-pointer touch-none" 
                 onClick={(e) => {
                   const rect = e.currentTarget.getBoundingClientRect();
                   const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
@@ -571,17 +597,13 @@
               </div>
             </div>
 
-            {/* Song Meta & Button Toolbar */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="min-w-0 pr-2 text-center sm:text-left">
                 <h2 className="text-sm sm:text-base font-bold text-amber-300 truncate drop-shadow">{currentTrack.title}</h2>
                 <p className="text-xs text-neutral-400 truncate">{currentTrack.artist}</p>
               </div>
 
-              {/* Clean SVG Controls Toolbar */}
               <div className="flex items-center justify-center sm:justify-end gap-3 sm:gap-4">
-                
-                {/* Shuffle */}
                 <button 
                   onClick={() => setIsShuffle(!isShuffle)} 
                   className={`p-1.5 transition active:scale-90 ${isShuffle ? "text-amber-400" : "text-neutral-400 hover:text-white"}`} 
@@ -590,7 +612,6 @@
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
                 </button>
 
-                {/* Previous */}
                 <button 
                   onClick={() => changeTrack("prev")} 
                   className="p-1.5 text-neutral-200 hover:text-white active:scale-90 transition" 
@@ -599,16 +620,14 @@
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
                 </button>
 
-                {/* Rewind 10s */}
                 <button 
                   onClick={() => seekRelative(-10)} 
                   className="p-1.5 text-neutral-300 hover:text-white active:scale-90 transition" 
                   title="Rewind 10 seconds"
                 >
-                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
                 </button>
 
-                {/* Play / Pause Primary Button */}
                 <button 
                   onClick={togglePlay} 
                   className="w-12 h-12 flex items-center justify-center bg-amber-400 text-stone-950 rounded-full transition transform hover:scale-105 active:scale-90 shadow-[0_0_15px_rgba(251,191,36,0.3)] shrink-0" 
@@ -621,7 +640,6 @@
                   )}
                 </button>
 
-                {/* Forward 10s */}
                 <button 
                   onClick={() => seekRelative(10)} 
                   className="p-1.5 text-neutral-300 hover:text-white active:scale-90 transition" 
@@ -630,7 +648,6 @@
                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 11V9a4 4 0 0 0-4-4H3"></path><polyline points="17 23 21 19 17 15"></polyline><path d="M3 13v2a4 4 0 0 0 4 4h14"></path></svg>
                 </button>
 
-                {/* Next */}
                 <button 
                   onClick={() => changeTrack("next")} 
                   className="p-1.5 text-neutral-200 hover:text-white active:scale-90 transition" 
@@ -639,7 +656,6 @@
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
                 </button>
 
-                {/* Mute */}
                 <button 
                   onClick={toggleMute} 
                   className="p-1.5 text-neutral-300 hover:text-white active:scale-90 transition" 
