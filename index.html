@@ -33,6 +33,8 @@
     .safe-bottom {
       padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
     }
+
+    /* Glow Keyframes */
     @keyframes subtlePulse {
       0%, 100% { transform: scale(1); opacity: 0.95; }
       50% { transform: scale(1.02); opacity: 1; }
@@ -50,6 +52,7 @@
 
     const BG_VIDEOS = Array.from({ length: 42 }, (_, i) => `./videos/bg_${i + 1}.mp4`);
 
+    // 20 Distinct Aesthetic Typography Styles
     const TYPOGRAPHY_STYLES = [
       { id: 1, name: "Cinzel Gold", font: "'Cinzel', serif", styleClass: "text-amber-300 font-bold uppercase tracking-widest drop-shadow-[0_4px_16px_rgba(251,191,36,0.5)]" },
       { id: 2, name: "Neon Cyber", font: "'Orbitron', sans-serif", styleClass: "text-cyan-300 font-black tracking-widest drop-shadow-[0_0_15px_rgba(34,211,238,0.8)] uppercase" },
@@ -62,7 +65,7 @@
       { id: 9, name: "Typewriter Prime", font: "'Courier Prime', monospace", styleClass: "text-green-400 font-bold tracking-tight drop-shadow-[0_0_10px_rgba(74,222,128,0.5)]" },
       { id: 10, name: "Righteous Synth", font: "'Righteous', cursive", styleClass: "text-fuchsia-400 font-normal tracking-wider drop-shadow-[0_0_15px_rgba(232,121,249,0.7)]" },
       { id: 11, name: "Street Marker", font: "'Permanent Marker', cursive", styleClass: "text-orange-400 font-normal tracking-wide drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]" },
-      { id: 12, name: "Modern Editorial", font: "'DM Serif Display', serif", styleClass: "text-amber-100 italic font-normal drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] text-2xl sm:text-4xl" },
+      { id: 12, name: "Modern Editorial", font: "'DM Serif Display', serif", styleClass: "text-amber-100 italic font-normal drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]" },
       { id: 13, name: "Minimal Mono", font: "'Major Mono Display', monospace", styleClass: "text-teal-200 lowercase tracking-widest drop-shadow-[0_0_12px_rgba(153,246,228,0.6)]" },
       { id: 14, name: "Pixel Retro", font: "'VT323', monospace", styleClass: "text-lime-400 font-normal tracking-widest text-2xl sm:text-3xl drop-shadow-[0_0_10px_rgba(163,230,53,0.7)]" },
       { id: 15, name: "Heavy Montserrat", font: "'Montserrat', sans-serif", styleClass: "text-stone-100 font-black uppercase italic tracking-tighter drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)]" },
@@ -102,7 +105,7 @@
           { time: 23, text: "Jahaan tum ho wahin main hoon" },
           { time: 30, text: "Tere na hone se lagta hai main kyun nahi..." },
           { time: 39, text: "Tere hone se jeeta hai dil mera" },
-          { time: 47, text: "Tu hi mera dil hai, tu hi meri jaan" },
+          { time: 47, text: "Tu hi मेरा dil hai, tu hi meri jaan" },
           { time: 58, text: "Tu hi mera kal hai, tu hi mera aaj" },
           { time: 71, text: "Subah ki kirno si jo hai..." }
         ]
@@ -259,7 +262,7 @@
         lyrics: [
           { time: 0, text: "♪ (Drift Waves) ♪" },
           { time: 18, text: "Aaja we mahiya, aaja we mahiya..." },
-          { time: 35, text: "Tere bin nahi lagda dil मेरा dholna" },
+          { time: 35, text: "Tere bin nahi lagda dil mera dholna" },
           { time: 48, text: "Akhiyaan mila ke gawaan na jaayi" }
         ]
       },
@@ -281,7 +284,10 @@
       const [playlist] = useState(YOUTUBE_PLAYLIST);
       const [currentIndex, setCurrentIndex] = useState(0);
       const [videoIndex, setVideoIndex] = useState(0);
-      const [fontIndex, setFontIndex] = useState(11); // Modern Editorial default
+      
+      // Default to Style 12: Modern Editorial (index 11)
+      const [fontIndex, setFontIndex] = useState(11);
+      
       const [isPlaying, setIsPlaying] = useState(false);
       const [isShuffle, setIsShuffle] = useState(false);
       const [currentTime, setCurrentTime] = useState(0);
@@ -296,60 +302,47 @@
       const currentTrack = playlist[currentIndex];
       const currentTypography = TYPOGRAPHY_STYLES[fontIndex];
 
-      // Robust YouTube initialization supporting both direct & polled API readiness
+      // YouTube API Initialization
       useEffect(() => {
-        let isReady = false;
-
-        const initPlayer = () => {
-          if (!window.YT || !window.YT.Player || isReady || ytPlayerRef.current) return;
-          isReady = true;
-
-          ytPlayerRef.current = new window.YT.Player("yt-active-player", {
-            height: "200",
-            width: "200",
-            videoId: currentTrack.youtubeId,
-            playerVars: {
-              autoplay: 0,
-              controls: 0,
-              disablekb: 1,
-              enablejsapi: 1,
-              fs: 0,
-              modestbranding: 1,
-              playsinline: 1
-            },
-            events: {
-              onReady: (e) => {
-                setDuration(e.target.getDuration() || 180);
+        const setupYouTube = () => {
+          if (window.YT && window.YT.Player) {
+            ytPlayerRef.current = new window.YT.Player("yt-hidden-audio", {
+              height: "1",
+              width: "1",
+              videoId: currentTrack.youtubeId,
+              playerVars: {
+                autoplay: 0,
+                controls: 0,
+                disablekb: 1,
+                fs: 0,
+                modestbranding: 1,
+                playsinline: 1
               },
-              onStateChange: (e) => {
-                if (e.data === window.YT.PlayerState.PLAYING) {
-                  setIsPlaying(true);
+              events: {
+                onReady: (e) => {
                   setDuration(e.target.getDuration() || 180);
-                  if (videoRef.current) videoRef.current.play().catch(() => {});
-                } else if (e.data === window.YT.PlayerState.PAUSED) {
-                  setIsPlaying(false);
-                  if (videoRef.current) videoRef.current.pause();
-                } else if (e.data === window.YT.PlayerState.ENDED) {
-                  changeTrack("next");
+                },
+                onStateChange: (e) => {
+                  if (e.data === window.YT.PlayerState.PLAYING) {
+                    setIsPlaying(true);
+                    setDuration(e.target.getDuration() || 180);
+                    if (videoRef.current) videoRef.current.play().catch(() => {});
+                  } else if (e.data === window.YT.PlayerState.PAUSED) {
+                    setIsPlaying(false);
+                    if (videoRef.current) videoRef.current.pause();
+                  } else if (e.data === window.YT.PlayerState.ENDED) {
+                    changeTrack("next");
+                  }
                 }
-              },
-              onError: () => {
-                changeTrack("next");
               }
-            }
-          });
+            });
+          }
         };
 
-        if (window.YT && window.YT.Player) {
-          initPlayer();
+        if (!window.YT) {
+          window.onYouTubeIframeAPIReady = setupYouTube;
         } else {
-          window.onYouTubeIframeAPIReady = initPlayer;
-          const poll = setInterval(() => {
-            if (window.YT && window.YT.Player) {
-              clearInterval(poll);
-              initPlayer();
-            }
-          }, 100);
+          setupYouTube();
         }
 
         return () => {
@@ -357,7 +350,7 @@
         };
       }, []);
 
-      // Polling loop for smooth synchronized lyrics
+      // Polling loop for lyric sync
       useEffect(() => {
         if (isPlaying) {
           timerRef.current = setInterval(() => {
@@ -365,14 +358,14 @@
               const time = ytPlayerRef.current.getCurrentTime();
               setCurrentTime(time || 0);
             }
-          }, 100);
+          }, 150);
         } else {
           clearInterval(timerRef.current);
         }
         return () => clearInterval(timerRef.current);
       }, [isPlaying]);
 
-      // Load Track on Playlist Change
+      // Video source update on track change
       useEffect(() => {
         if (ytPlayerRef.current?.loadVideoById) {
           ytPlayerRef.current.loadVideoById(currentTrack.youtubeId);
@@ -384,12 +377,11 @@
       }, [currentIndex]);
 
       const togglePlay = () => {
-        if (!ytPlayerRef.current || typeof ytPlayerRef.current.playVideo !== "function") return;
+        if (!ytPlayerRef.current) return;
         if (isPlaying) {
           ytPlayerRef.current.pauseVideo();
         } else {
           ytPlayerRef.current.playVideo();
-          if (videoRef.current) videoRef.current.play().catch(() => {});
         }
       };
 
@@ -445,6 +437,7 @@
         else if (diffY < -60) changeTrack("prev");
       };
 
+      // Realtime lyric tracker
       const { activeText, nextText } = useMemo(() => {
         if (!currentTrack?.lyrics || currentTrack.lyrics.length === 0) {
           return { activeText: "♪ Playing Audio ♪", nextText: "" };
@@ -477,9 +470,9 @@
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          {/* Active YouTube Node - Zero visual footprint but recognized by compiler & browser engines */}
-          <div className="absolute -bottom-10 -right-10 pointer-events-none opacity-[0.001] z-0 overflow-hidden w-10 h-10">
-            <div id="yt-active-player"></div>
+          {/* YouTube Hidden Audio Node */}
+          <div className="absolute -top-[9999px] -left-[9999px] opacity-0 pointer-events-none" aria-hidden="true">
+            <div id="yt-hidden-audio"></div>
           </div>
 
           {/* Background Video Layer */}
@@ -487,16 +480,16 @@
             ref={videoRef}
             key={BG_VIDEOS[videoIndex]}
             src={BG_VIDEOS[videoIndex]}
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
             autoPlay
             loop
             muted
             playsInline
           />
 
-          {/* Screen Tap Play/Pause Zone */}
+          {/* Ambient Vignette & Screen Tap */}
           <div 
-            className="absolute inset-0 bg-gradient-to-b from-stone-950/75 via-stone-950/30 to-stone-950/90 cursor-pointer z-10"
+            className="absolute inset-0 bg-gradient-to-b from-stone-950/75 via-stone-950/30 to-stone-950/90 cursor-pointer"
             onClick={togglePlay}
           />
 
@@ -508,6 +501,7 @@
             </div>
 
             <div className="flex items-center gap-2">
+              {/* Typography Switcher Button */}
               <button 
                 onClick={nextTypography}
                 className="bg-black/60 hover:bg-black/80 border border-amber-400/40 active:scale-95 text-amber-300 font-semibold px-2.5 sm:px-3.5 py-1 rounded-full text-[11px] sm:text-xs transition backdrop-blur-md flex items-center gap-1.5 shadow-lg"
@@ -517,6 +511,7 @@
                 <span className="max-w-[85px] sm:max-w-[120px] truncate">{currentTypography.name}</span>
               </button>
 
+              {/* Background Video Switcher */}
               <button 
                 onClick={nextBackgroundVideo}
                 className="bg-black/60 hover:bg-black/80 border border-white/20 active:scale-95 text-neutral-300 font-medium px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs transition backdrop-blur-md flex items-center gap-1"
@@ -529,7 +524,7 @@
           </header>
 
           {/* ================= CENTER SYNCHRONIZED LYRICS ================= */}
-          <main className="relative z-20 flex-1 flex flex-col items-center justify-center px-6 text-center pointer-events-none my-auto">
+          <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 text-center pointer-events-none my-auto">
             <div className="max-w-2xl flex flex-col items-center gap-3 transition-all duration-500">
               <h1 
                 key={activeText}
