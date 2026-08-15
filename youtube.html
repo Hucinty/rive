@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Aesthetic Ambience - YouTube Audio Player</title>
+
+  <!-- Tailwind CSS & Google Fonts -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;700;900&family=Playfair+Display:ital,wght@0,700;1,400&family=Space+Grotesk:wght@500;700&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+  <!-- React & Babel -->
+  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+  <!-- YouTube IFrame API -->
+  <script src="https://www.youtube.com/iframe_api"></script>
+</head>
+<body class="bg-stone-950 overflow-hidden select-none m-0 p-0 font-sans text-white">
+  <div id="root"></div>
+
+  <script type="text/babel">
+    const { useState, useEffect, useRef } = React;
+
+    // =========================================================================
+    // 1. 40+ BACKGROUND VIDEO LOOPS LIST
+    // =========================================================================
+    const BG_VIDEOS = Array.from({ length: 42 }, (_, i) => `./videos/bg_${i + 1}.mp4`);
+
+    // =========================================================================
+    // 2. YOUTUBE MUSIC TRACKS
+    // =========================================================================
+    const YOUTUBE_PLAYLIST = [
+      { id: 1, title: "Tokyo", artist: "Leat'eq", youtubeId: "qR4jvErGitg" },
+      { id: 2, title: "EEYUH! (Slowed + Reverb)", artist: "HR / EUPHXRIA", youtubeId: "amxcfss26Hg" },
+      { id: 3, title: "Stray.wav", artist: "$undown", youtubeId: "uNi5Go5dth8" },
+      { id: 4, title: "Sea Of Problems (Slowed + Reverb)", artist: "glichery", youtubeId: "XpAUQlO7VS0" },
+      { id: 5, title: "I'll Do It (Slowed)", artist: "deprezz", youtubeId: "Ral6kFSx7ZY" },
+      { id: 6, title: "Track 06", artist: "Phonk / Drift Wave", youtubeId: "wEqifG8ATBI" },
+      { id: 7, title: "Track 07", artist: "Drift Wave", youtubeId: "X9FKvnA-aAE" },
+      { id: 8, title: "Track 08", artist: "Lo-Fi Collective", youtubeId: "0pWsCiBvLOk" },
+      { id: 9, title: "Track 09", artist: "Synth Drift", youtubeId: "IAvw60x0Kn4" },
+      { id: 10, title: "Track 10", artist: "Shadow Wave", youtubeId: "OxRC8vEBzmE" }
+    ];
+
+    // =========================================================================
+    // 3. MAIN APP COMPONENT
+    // =========================================================================
+    function App() {
+      const [playlist] = useState(YOUTUBE_PLAYLIST);
+      const [currentIndex, setCurrentIndex] = useState(0);
+      const [videoIndex, setVideoIndex] = useState(0);
+      const [isPlaying, setIsPlaying] = useState(false);
+      const [isShuffle, setIsShuffle] = useState(false);
+      const [currentTime, setCurrentTime] = useState(0);
+      const [duration, setDuration] = useState(0);
+      const [isMuted, setIsMuted] = useState(false);
+
+      const ytPlayerRef = useRef(null);
+      const videoRef = useRef(null);
+      const timerRef = useRef(null);
+      const touchStartY = useRef(0);
+
+      const currentTrack = playlist[currentIndex];
+
+      // Initialize Hidden YouTube Engine (Audio Only)
+      useEffect(() => {
+        const setupYouTube = () => {
+          if (window.YT && window.YT.Player) {
+            ytPlayerRef.current = new window.YT.Player("yt-hidden-audio", {
+              height: "1",
+              width: "1",
+              videoId: currentTrack.youtubeId,
+              playerVars: {
+                autoplay: 0,
+                controls: 0,
+                disablekb: 1,
+                fs: 0,
+                modestbranding: 1,
+                playsinline: 1
+              },
+              events: {
+                onReady: (e) => {
+                  setDuration(e.target.getDuration() || 180);
+                },
+                onStateChange: (e) => {
+                  if (e.data === window.YT.PlayerState.PLAYING) {
+                    setIsPlaying(true);
+                    setDuration(e.target.getDuration() || 180);
+                    if (videoRef.current) videoRef.current.play().catch(console.error);
+                  } else if (e.data === window.YT.PlayerState.PAUSED) {
+                    setIsPlaying(false);
+                    if (videoRef.current) videoRef.current.pause();
+                  } else if (e.data === window.YT.PlayerState.ENDED) {
+                    changeTrack("next");
+                  }
+                }
+              }
+            });
+          }
+        };
+
+        if (!window.YT) {
+          window.onYouTubeIframeAPIReady = setupYouTube;
+        } else {
+          setupYouTube();
+        }
+
+        return () => {
+          if (ytPlayerRef.current?.destroy) ytPlayerRef.current.destroy();
+        };
+      }, []);
+
+      // Polling timer for progress bar
+      useEffect(() => {
+        if (isPlaying) {
+          timerRef.current = setInterval(() => {
+            if (ytPlayerRef.current?.getCurrentTime) {
+              const time = ytPlayerRef.current.getCurrentTime();
+              setCurrentTime(time || 0);
+            }
+          }, 200);
+        } else {
+          clearInterval(timerRef.current);
+        }
+        return () => clearInterval(timerRef.current);
+      }, [isPlaying]);
+
+      // Handle track change
+      useEffect(() => {
+        if (ytPlayerRef.current?.loadVideoById) {
+          ytPlayerRef.current.loadVideoById(currentTrack.youtubeId);
+          setCurrentTime(0);
+          if (isPlaying) {
+            ytPlayerRef.current.playVideo();
+          }
+        }
+      }, [currentIndex]);
+
+      // Play / Pause Toggle
+      const togglePlay = () => {
+        if (!ytPlayerRef.current) return;
+        if (isPlaying) {
+          ytPlayerRef.current.pauseVideo();
+        } else {
+          ytPlayerRef.current.playVideo();
+        }
+      };
+
+      // Change Track Navigation
+      const changeTrack = (direction) => {
+        let nextIdx;
+        if (isShuffle) {
+          nextIdx = Math.floor(Math.random() * playlist.length);
+        } else {
+          nextIdx = direction === "next" 
+            ? (currentIndex + 1) % playlist.length
+            : (currentIndex - 1 + playlist.length) % playlist.length;
+        }
+        setCurrentIndex(nextIdx);
+        setCurrentTime(0);
+      };
+
+      // Seek Relative (-10s / +10s)
+      const seekRelative = (seconds) => {
+        if (ytPlayerRef.current?.getCurrentTime && ytPlayerRef.current?.seekTo) {
+          const newTime = Math.min(Math.max(ytPlayerRef.current.getCurrentTime() + seconds, 0), duration || 0);
+          ytPlayerRef.current.seekTo(newTime, true);
+          setCurrentTime(newTime);
+        }
+      };
+
+      // Mute / Unmute Toggle
+      const toggleMute = () => {
+        if (!ytPlayerRef.current) return;
+        if (isMuted) {
+          ytPlayerRef.current.unMute();
+          setIsMuted(false);
+        } else {
+          ytPlayerRef.current.mute();
+          setIsMuted(true);
+        }
+      };
+
+      // Switch Next Background Video
+      const nextBackgroundVideo = (e) => {
+        e.stopPropagation();
+        setVideoIndex((prev) => (prev + 1) % BG_VIDEOS.length);
+      };
+
+      // Swipe Gestures
+      const handleTouchStart = (e) => { touchStartY.current = e.touches[0].clientY; };
+      const handleTouchEnd = (e) => {
+        const diffY = touchStartY.current - e.changedTouches[0].clientY;
+        if (diffY > 50) changeTrack("next");
+        else if (diffY < -50) changeTrack("prev");
+      };
+
+      const progressPercent = (currentTime / (duration || 1)) * 100;
+
+      return (
+        <div 
+          className="relative w-screen h-screen bg-stone-950 overflow-hidden select-none"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+        >
+          {/* Completely Hidden YouTube Container (Audio Only) */}
+          <div className="absolute -top-[9999px] -left-[9999px] opacity-0 pointer-events-none">
+            <div id="yt-hidden-audio"></div>
+          </div>
+
+          {/* ================= BACKGROUND VIDEO IN INFINITE LOOP ================= */}
+          <video
+            ref={videoRef}
+            key={BG_VIDEOS[videoIndex]}
+            src={BG_VIDEOS[videoIndex]}
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none transition-opacity duration-700"
+            autoPlay
+            loop
+            muted
+            playsInline
+          />
+
+          {/* Dark Glass Overlay */}
+          <div 
+            className="absolute inset-0 bg-gradient-to-b from-stone-950/70 via-stone-950/20 to-stone-950/85 cursor-pointer"
+            onClick={togglePlay}
+          />
+
+          {/* ================= TOP HEADER BAR ================= */}
+          <div className="absolute top-4 left-4 right-4 flex items-center justify-between z-20">
+            <div className="text-xs uppercase tracking-widest text-amber-400 font-bold flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+              Aesthetic Ambience
+            </div>
+
+            {/* Background Video Switcher */}
+            <button 
+              onClick={nextBackgroundVideo}
+              className="bg-black/50 hover:bg-black/70 border border-amber-400/40 text-amber-300 font-semibold px-3.5 py-1.5 rounded-full text-xs transition backdrop-blur-md"
+              title="Switch Background Video"
+            >
+              🎬 Video #{videoIndex + 1}
+            </button>
+          </div>
+
+          {/* ================= BOTTOM MUSIC CONTROLS ================= */}
+          <div className="absolute bottom-0 left-0 right-0 p-6 z-20 flex flex-col gap-3 bg-gradient-to-t from-black/95 via-black/60 to-transparent">
+            {/* Seek Bar */}
+            <div 
+              className="w-full bg-white/20 h-1.5 rounded-full overflow-hidden cursor-pointer"
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const pos = (e.clientX - rect.left) / rect.width;
+                if (ytPlayerRef.current?.seekTo) {
+                  ytPlayerRef.current.seekTo(pos * duration, true);
+                }
+              }}
+            >
+              <div className="bg-amber-400 h-full transition-all duration-75" style={{ width: `${progressPercent}%` }} />
+            </div>
+
+            {/* Song Metadata & Media Buttons */}
+            <div className="flex items-center justify-between text-white mt-1">
+              <div>
+                <h2 className="text-base sm:text-lg font-bold text-amber-300 line-clamp-1">{currentTrack.title}</h2>
+                <p className="text-xs text-neutral-400">{currentTrack.artist}</p>
+              </div>
+
+              {/* Action Buttons: Shuffle, Prev, -10s, Play/Pause, +10s, Next, Mute */}
+              <div className="flex items-center gap-2 sm:gap-3">
+                {/* Shuffle Button */}
+                <button 
+                  onClick={() => setIsShuffle(!isShuffle)} 
+                  className={`p-2 text-base transition ${isShuffle ? "text-amber-400 font-bold" : "text-neutral-400 hover:text-white"}`}
+                  title="Toggle Shuffle"
+                >
+                  🔀
+                </button>
+
+                {/* Previous Track */}
+                <button 
+                  onClick={() => changeTrack("prev")} 
+                  className="p-2 text-neutral-300 hover:text-white text-base sm:text-lg"
+                  title="Previous Track"
+                >
+                  ⏮
+                </button>
+
+                {/* Rewind 10s */}
+                <button 
+                  onClick={() => seekRelative(-10)} 
+                  className="p-1.5 text-xs sm:text-sm text-neutral-300 hover:text-amber-400 transition font-mono"
+                  title="Rewind 10 seconds"
+                >
+                  -10s
+                </button>
+
+                {/* Play / Pause */}
+                <button 
+                  onClick={togglePlay} 
+                  className="w-11 h-11 flex items-center justify-center bg-amber-400 hover:bg-amber-300 text-stone-950 rounded-full transition transform active:scale-95 font-bold shadow-lg"
+                  title={isPlaying ? "Pause" : "Play"}
+                >
+                  {isPlaying ? "❚❚" : "▶"}
+                </button>
+
+                {/* Forward 10s */}
+                <button 
+                  onClick={() => seekRelative(10)} 
+                  className="p-1.5 text-xs sm:text-sm text-neutral-300 hover:text-amber-400 transition font-mono"
+                  title="Forward 10 seconds"
+                >
+                  +10s
+                </button>
+
+                {/* Next Track */}
+                <button 
+                  onClick={() => changeTrack("next")} 
+                  className="p-2 text-neutral-300 hover:text-white text-base sm:text-lg"
+                  title="Next Track"
+                >
+                  ⏭
+                </button>
+
+                {/* Mute / Unmute */}
+                <button 
+                  onClick={toggleMute} 
+                  className="p-2 text-neutral-300 hover:text-white text-base ml-1"
+                  title={isMuted ? "Unmute" : "Mute"}
+                >
+                  {isMuted ? "🔇" : "🔊"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
