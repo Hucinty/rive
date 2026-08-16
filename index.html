@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>Hucinty Player</title>
+  <title>Aesthetic Ambience - YouTube Audio Player</title>
 
   <!-- Tailwind CSS & 20 Aesthetic Google Fonts -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -12,8 +12,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Bebas+Neue&family=Caveat:wght@600&family=Cinzel:wght@700&family=Comfortaa:wght@700&family=Courier+Prime:ital,wght@0,700;1,400&family=DM+Serif+Display:ital@0;1&family=Great+Vibes&family=Inter:wght@300;400;700;900&family=Major+Mono+Display&family=Monoton&family=Montserrat:ital,wght@0,900;1,700&family=Orbitron:wght@700;900&family=Permanent+Marker&family=Playfair+Display:ital,wght@0,700;1,600&family=Press+Start+2P&family=Righteous&family=Sacramento&family=Space+Grotesk:wght@500;700&family=Syne:wght@700;800&family=UnifrakturMaguntia&family=VT323&display=swap" rel="stylesheet">
 
   <!-- React & Babel -->
-  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <!-- YouTube IFrame API -->
@@ -34,7 +34,6 @@
       padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
     }
 
-    /* Glow Keyframes */
     @keyframes subtlePulse {
       0%, 100% { transform: scale(1); opacity: 0.95; }
       50% { transform: scale(1.02); opacity: 1; }
@@ -50,7 +49,6 @@
   <script type="text/babel">
     const { useState, useEffect, useRef, useMemo } = React;
 
-    // 20 Distinct Aesthetic Typography Styles
     const TYPOGRAPHY_STYLES = [
       { id: 1, name: "Cinzel Gold", font: "'Cinzel', serif", styleClass: "text-amber-300 font-bold uppercase tracking-widest drop-shadow-[0_4px_16px_rgba(251,191,36,0.5)]" },
       { id: 2, name: "Neon Cyber", font: "'Orbitron', sans-serif", styleClass: "text-cyan-300 font-black tracking-widest drop-shadow-[0_0_15px_rgba(34,211,238,0.8)] uppercase" },
@@ -74,7 +72,6 @@
       { id: 20, name: "Arcade 8-Bit", font: "'Press Start 2P', cursive", styleClass: "text-yellow-300 font-normal text-xs sm:text-sm tracking-widest leading-loose drop-shadow-[0_0_8px_rgba(253,224,71,0.8)]" }
     ];
 
-    // Playlist with mapped video background (Song 1 -> bg_1.mp4, Song 2 -> bg_2.mp4, etc.)
     const YOUTUBE_PLAYLIST = [
       {
         id: 1,
@@ -297,7 +294,7 @@
     function App() {
       const [playlist] = useState(YOUTUBE_PLAYLIST);
       const [currentIndex, setCurrentIndex] = useState(0);
-      const [fontIndex, setFontIndex] = useState(11); // Default: Modern Editorial (Style 12)
+      const [fontIndex, setFontIndex] = useState(11); // Style 12 default
       const [isPlaying, setIsPlaying] = useState(false);
       const [isShuffle, setIsShuffle] = useState(false);
       const [currentTime, setCurrentTime] = useState(0);
@@ -312,27 +309,47 @@
       const currentTrack = playlist[currentIndex];
       const currentTypography = TYPOGRAPHY_STYLES[fontIndex];
 
-      // YouTube API Initialization
+      const changeTrack = (direction) => {
+        let nextIdx;
+        if (isShuffle) {
+          nextIdx = Math.floor(Math.random() * playlist.length);
+        } else {
+          nextIdx = direction === "next" 
+            ? (currentIndex + 1) % playlist.length 
+            : (currentIndex - 1 + playlist.length) % playlist.length;
+        }
+        setCurrentIndex(nextIdx);
+        setCurrentTime(0);
+      };
+
+      // Permanent YouTube Player Initialization
       useEffect(() => {
-        const setupYouTube = () => {
-          if (window.YT && window.YT.Player) {
-            ytPlayerRef.current = new window.YT.Player("yt-hidden-audio", {
-              height: "1",
-              width: "1",
+        let isCancelled = false;
+
+        const initPlayer = () => {
+          if (!window.YT || !window.YT.Player || ytPlayerRef.current) return false;
+
+          try {
+            ytPlayerRef.current = new window.YT.Player("yt-player-persistent", {
+              height: "100%",
+              width: "100%",
               videoId: currentTrack.youtubeId,
               playerVars: {
                 autoplay: 0,
                 controls: 0,
                 disablekb: 1,
+                enablejsapi: 1,
                 fs: 0,
                 modestbranding: 1,
-                playsinline: 1
+                playsinline: 1,
+                rel: 0
               },
               events: {
                 onReady: (e) => {
-                  setDuration(e.target.getDuration() || 180);
+                  if (!isCancelled) setDuration(e.target.getDuration() || 180);
                 },
                 onStateChange: (e) => {
+                  if (isCancelled) return;
                   if (e.data === window.YT.PlayerState.PLAYING) {
                     setIsPlaying(true);
                     setDuration(e.target.getDuration() || 180);
@@ -343,19 +360,30 @@
                   } else if (e.data === window.YT.PlayerState.ENDED) {
                     changeTrack("next");
                   }
+                },
+                onError: (e) => {
+                  // Prevents playback hang on regional/ad/embed restriction errors
+                  changeTrack("next");
                 }
               }
             });
+            return true;
+          } catch (err) {
+            return false;
           }
         };
 
-        if (!window.YT) {
-          window.onYouTubeIframeAPIReady = setupYouTube;
+        if (window.YT && window.YT.Player) {
+          initPlayer();
         } else {
-          setupYouTube();
+          window.onYouTubeIframeAPIReady = initPlayer;
+          const poll = setInterval(() => {
+            if (initPlayer()) clearInterval(poll);
+          }, 100);
         }
 
         return () => {
+          isCancelled = true;
           if (ytPlayerRef.current?.destroy) ytPlayerRef.current.destroy();
         };
       }, []);
@@ -368,14 +396,14 @@
               const time = ytPlayerRef.current.getCurrentTime();
               setCurrentTime(time || 0);
             }
-          }, 150);
+          }, 100);
         } else {
           clearInterval(timerRef.current);
         }
         return () => clearInterval(timerRef.current);
       }, [isPlaying]);
 
-      // Video and Audio source update on track change
+      // Load Track on Index Change
       useEffect(() => {
         if (ytPlayerRef.current?.loadVideoById) {
           ytPlayerRef.current.loadVideoById(currentTrack.youtubeId);
@@ -389,23 +417,15 @@
       const togglePlay = () => {
         if (!ytPlayerRef.current) return;
         if (isPlaying) {
-          ytPlayerRef.current.pauseVideo();
+          if (typeof ytPlayerRef.current.pauseVideo === 'function') {
+            ytPlayerRef.current.pauseVideo();
+          }
         } else {
-          ytPlayerRef.current.playVideo();
+          if (typeof ytPlayerRef.current.playVideo === 'function') {
+            ytPlayerRef.current.playVideo();
+          }
+          if (videoRef.current) videoRef.current.play().catch(() => {});
         }
-      };
-
-      const changeTrack = (direction) => {
-        let nextIdx;
-        if (isShuffle) {
-          nextIdx = Math.floor(Math.random() * playlist.length);
-        } else {
-          nextIdx = direction === "next" 
-            ? (currentIndex + 1) % playlist.length 
-            : (currentIndex - 1 + playlist.length) % playlist.length;
-        }
-        setCurrentIndex(nextIdx);
-        setCurrentTime(0);
       };
 
       const seekRelative = (seconds) => {
@@ -475,9 +495,9 @@
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          {/* YouTube Hidden Audio Node */}
-          <div className="absolute -top-[9999px] -left-[9999px] opacity-0 pointer-events-none" aria-hidden="true">
-            <div id="yt-hidden-audio"></div>
+          {/* Active YouTube Frame Container (Permanent z-0 layout avoids OS suspension) */}
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.001] flex items-center justify-center overflow-hidden">
+            <div id="yt-player-persistent"></div>
           </div>
 
           {/* Background Video Layer mapped to current song */}
@@ -485,16 +505,16 @@
             ref={videoRef} 
             key={currentTrack.bgVideo} 
             src={currentTrack.bgVideo} 
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none" 
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0" 
             autoPlay 
             loop 
             muted 
             playsInline 
           />
 
-          {/* Ambient Vignette & Screen Tap */}
+          {/* Ambient Vignette & Screen Tap Zone */}
           <div 
-            className="absolute inset-0 bg-gradient-to-b from-stone-950/75 via-stone-950/30 to-stone-950/90 cursor-pointer"
+            className="absolute inset-0 bg-gradient-to-b from-stone-950/75 via-stone-950/30 to-stone-950/90 cursor-pointer z-10"
             onClick={togglePlay} 
           />
 
@@ -528,7 +548,7 @@
           </header>
 
           {/* ================= CENTER SYNCHRONIZED LYRICS ================= */}
-          <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 text-center pointer-events-none my-auto">
+          <main className="relative z-20 flex-1 flex flex-col items-center justify-center px-6 text-center pointer-events-none my-auto">
             <div className="max-w-2xl flex flex-col items-center gap-3 transition-all duration-500">
               <h1 
                 key={activeText} 
@@ -549,7 +569,7 @@
             </div>
           </main>
 
-          {/* ================= BOTTOM MUSIC CONTROLS (SVG ICONS) ================= */}
+          {/* ================= BOTTOM MUSIC CONTROLS ================= */}
           <footer className="relative z-20 safe-bottom px-4 sm:px-6 flex flex-col gap-3 bg-gradient-to-t from-black via-black/85 to-transparent pb-4">
             {/* Progress Bar & Timestamps */}
             <div className="w-full flex flex-col gap-1">
