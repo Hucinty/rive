@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="referrer" content="strict-origin-when-cross-origin" />
   <title>Aesthetic Ambience - YouTube Audio Player</title>
 
   <!-- Tailwind CSS & 20 Aesthetic Google Fonts -->
@@ -12,8 +13,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Alex+Brush&family=Bebas+Neue&family=Caveat:wght@600&family=Cinzel:wght@700&family=Comfortaa:wght@700&family=Courier+Prime:ital,wght@0,700;1,400&family=DM+Serif+Display:ital@0;1&family=Great+Vibes&family=Inter:wght@300;400;700;900&family=Major+Mono+Display&family=Monoton&family=Montserrat:ital,wght@0,900;1,700&family=Orbitron:wght@700;900&family=Permanent+Marker&family=Playfair+Display:ital,wght@0,700;1,600&family=Press+Start+2P&family=Righteous&family=Sacramento&family=Space+Grotesk:wght@500;700&family=Syne:wght@700;800&family=UnifrakturMaguntia&family=VT323&display=swap" rel="stylesheet">
 
   <!-- React & Babel -->
-  <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
+  <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
   <!-- YouTube IFrame API -->
@@ -24,7 +25,7 @@
       height: 100%;
       height: 100dvh;
       overflow: hidden;
-      touch-action: manipulation;
+      touch-action: none;
       -webkit-tap-highlight-color: transparent;
     }
     .safe-top {
@@ -34,7 +35,6 @@
       padding-bottom: max(1.25rem, env(safe-area-inset-bottom));
     }
 
-    /* Glow Keyframes */
     @keyframes subtlePulse {
       0%, 100% { transform: scale(1); opacity: 0.95; }
       50% { transform: scale(1.02); opacity: 1; }
@@ -52,28 +52,128 @@
 
     const BG_VIDEOS = Array.from({ length: 42 }, (_, i) => `./videos/bg_${i + 1}.mp4`);
 
-    // 20 Distinct Aesthetic Typography Styles
+    // 20 Typography Themes (Controls Lyrics, UI Headers, Play Button Glow, Progress Bar & Accent Colors)
     const TYPOGRAPHY_STYLES = [
-      { id: 1, name: "Cinzel Gold", font: "'Cinzel', serif", styleClass: "text-amber-300 font-bold uppercase tracking-widest drop-shadow-[0_4px_16px_rgba(251,191,36,0.5)]" },
-      { id: 2, name: "Neon Cyber", font: "'Orbitron', sans-serif", styleClass: "text-cyan-300 font-black tracking-widest drop-shadow-[0_0_15px_rgba(34,211,238,0.8)] uppercase" },
-      { id: 3, name: "Vintage Serif", font: "'Playfair Display', serif", styleClass: "text-rose-100 italic font-semibold drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]" },
-      { id: 4, name: "Retro Monoton", font: "'Monoton', cursive", styleClass: "text-yellow-400 font-normal tracking-wide drop-shadow-[0_0_20px_rgba(250,204,21,0.6)]" },
-      { id: 5, name: "Handwritten", font: "'Caveat', cursive", styleClass: "text-emerald-300 font-bold tracking-normal drop-shadow-[0_3px_10px_rgba(0,0,0,0.8)] text-2xl sm:text-4xl" },
-      { id: 6, name: "Calligraphy Luxe", font: "'Great Vibes', cursive", styleClass: "text-pink-300 font-normal tracking-wide drop-shadow-[0_2px_15px_rgba(244,114,182,0.6)] text-2xl sm:text-4xl" },
-      { id: 7, name: "Syne Brutalist", font: "'Syne', sans-serif", styleClass: "text-white font-extrabold uppercase tracking-tighter drop-shadow-[0_4px_20px_rgba(255,255,255,0.4)]" },
-      { id: 8, name: "Bebas Bold", font: "'Bebas Neue', sans-serif", styleClass: "text-amber-400 tracking-wider uppercase drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] text-2xl sm:text-4xl" },
-      { id: 9, name: "Typewriter Prime", font: "'Courier Prime', monospace", styleClass: "text-green-400 font-bold tracking-tight drop-shadow-[0_0_10px_rgba(74,222,128,0.5)]" },
-      { id: 10, name: "Righteous Synth", font: "'Righteous', cursive", styleClass: "text-fuchsia-400 font-normal tracking-wider drop-shadow-[0_0_15px_rgba(232,121,249,0.7)]" },
-      { id: 11, name: "Street Marker", font: "'Permanent Marker', cursive", styleClass: "text-orange-400 font-normal tracking-wide drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]" },
-      { id: 12, name: "Modern Editorial", font: "'DM Serif Display', serif", styleClass: "text-amber-100 italic font-normal drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)]" },
-      { id: 13, name: "Minimal Mono", font: "'Major Mono Display', monospace", styleClass: "text-teal-200 lowercase tracking-widest drop-shadow-[0_0_12px_rgba(153,246,228,0.6)]" },
-      { id: 14, name: "Pixel Retro", font: "'VT323', monospace", styleClass: "text-lime-400 font-normal tracking-widest text-2xl sm:text-3xl drop-shadow-[0_0_10px_rgba(163,230,53,0.7)]" },
-      { id: 15, name: "Heavy Montserrat", font: "'Montserrat', sans-serif", styleClass: "text-stone-100 font-black uppercase italic tracking-tighter drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)]" },
-      { id: 16, name: "Curved Cursive", font: "'Sacramento', cursive", styleClass: "text-sky-300 font-normal tracking-wider drop-shadow-[0_3px_12px_rgba(125,211,252,0.6)] text-2xl sm:text-4xl" },
-      { id: 17, name: "Modern Bubble", font: "'Comfortaa', cursive", styleClass: "text-violet-300 font-bold tracking-tight drop-shadow-[0_2px_12px_rgba(196,181,253,0.6)]" },
-      { id: 18, name: "Alex Brush", font: "'Alex Brush', cursive", styleClass: "text-rose-300 font-normal tracking-widest drop-shadow-[0_4px_14px_rgba(253,164,175,0.7)] text-2xl sm:text-4xl" },
-      { id: 19, name: "Gothic Blackletter", font: "'UnifrakturMaguntia', cursive", styleClass: "text-red-400 font-normal tracking-widest drop-shadow-[0_0_15px_rgba(248,113,113,0.6)]" },
-      { id: 20, name: "Arcade 8-Bit", font: "'Press Start 2P', cursive", styleClass: "text-yellow-300 font-normal text-xs sm:text-sm tracking-widest leading-loose drop-shadow-[0_0_8px_rgba(253,224,71,0.8)]" }
+      { 
+        id: 1, name: "Cinzel Gold", font: "'Cinzel', serif", 
+        styleClass: "text-amber-300 font-bold uppercase tracking-widest drop-shadow-[0_4px_16px_rgba(251,191,36,0.6)]",
+        accentBg: "bg-amber-400", accentText: "text-amber-300", glowColor: "rgba(251,191,36,0.45)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 2, name: "Neon Cyber", font: "'Orbitron', sans-serif", 
+        styleClass: "text-cyan-300 font-black tracking-widest drop-shadow-[0_0_15px_rgba(34,211,238,0.85)] uppercase",
+        accentBg: "bg-cyan-400", accentText: "text-cyan-300", glowColor: "rgba(34,211,238,0.6)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 3, name: "Vintage Serif", font: "'Playfair Display', serif", 
+        styleClass: "text-rose-100 italic font-semibold drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)]",
+        accentBg: "bg-rose-300", accentText: "text-rose-200", glowColor: "rgba(244,63,94,0.4)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 4, name: "Retro Monoton", font: "'Monoton', cursive", 
+        styleClass: "text-yellow-400 font-normal tracking-wide drop-shadow-[0_0_20px_rgba(250,204,21,0.7)]",
+        accentBg: "bg-yellow-400", accentText: "text-yellow-300", glowColor: "rgba(250,204,21,0.5)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 5, name: "Handwritten", font: "'Caveat', cursive", 
+        styleClass: "text-emerald-300 font-bold tracking-normal drop-shadow-[0_3px_10px_rgba(0,0,0,0.8)] text-2xl sm:text-4xl",
+        accentBg: "bg-emerald-400", accentText: "text-emerald-300", glowColor: "rgba(52,211,153,0.45)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 6, name: "Calligraphy Luxe", font: "'Great Vibes', cursive", 
+        styleClass: "text-pink-300 font-normal tracking-wide drop-shadow-[0_2px_15px_rgba(244,114,182,0.7)] text-2xl sm:text-4xl",
+        accentBg: "bg-pink-400", accentText: "text-pink-300", glowColor: "rgba(244,114,182,0.5)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 7, name: "Syne Brutalist", font: "'Syne', sans-serif", 
+        styleClass: "text-white font-extrabold uppercase tracking-tighter drop-shadow-[0_4px_20px_rgba(255,255,255,0.4)]",
+        accentBg: "bg-white", accentText: "text-white", glowColor: "rgba(255,255,255,0.5)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 8, name: "Bebas Bold", font: "'Bebas Neue', sans-serif", 
+        styleClass: "text-amber-400 tracking-wider uppercase drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] text-2xl sm:text-4xl",
+        accentBg: "bg-amber-500", accentText: "text-amber-400", glowColor: "rgba(245,158,11,0.45)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 9, name: "Typewriter Prime", font: "'Courier Prime', monospace", 
+        styleClass: "text-green-400 font-bold tracking-tight drop-shadow-[0_0_10px_rgba(74,222,128,0.6)]",
+        accentBg: "bg-green-400", accentText: "text-green-400", glowColor: "rgba(74,222,128,0.45)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 10, name: "Righteous Synth", font: "'Righteous', cursive", 
+        styleClass: "text-fuchsia-400 font-normal tracking-wider drop-shadow-[0_0_15px_rgba(232,121,249,0.8)]",
+        accentBg: "bg-fuchsia-400", accentText: "text-fuchsia-300", glowColor: "rgba(232,121,249,0.55)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 11, name: "Street Marker", font: "'Permanent Marker', cursive", 
+        styleClass: "text-orange-400 font-normal tracking-wide drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)]",
+        accentBg: "bg-orange-400", accentText: "text-orange-400", glowColor: "rgba(251,146,60,0.5)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 12, name: "Modern Editorial", font: "'DM Serif Display', serif", 
+        styleClass: "text-amber-100 italic font-normal drop-shadow-[0_4px_16px_rgba(0,0,0,0.95)] text-2xl sm:text-4xl",
+        accentBg: "bg-amber-200", accentText: "text-amber-100", glowColor: "rgba(253,230,138,0.4)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 13, name: "Minimal Mono", font: "'Major Mono Display', monospace", 
+        styleClass: "text-teal-200 lowercase tracking-widest drop-shadow-[0_0_12px_rgba(153,246,228,0.7)]",
+        accentBg: "bg-teal-300", accentText: "text-teal-200", glowColor: "rgba(94,234,212,0.45)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 14, name: "Pixel Retro", font: "'VT323', monospace", 
+        styleClass: "text-lime-400 font-normal tracking-widest text-2xl sm:text-3xl drop-shadow-[0_0_10px_rgba(163,230,53,0.7)]",
+        accentBg: "bg-lime-400", accentText: "text-lime-400", glowColor: "rgba(163,230,53,0.5)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 15, name: "Heavy Montserrat", font: "'Montserrat', sans-serif", 
+        styleClass: "text-stone-100 font-black uppercase italic tracking-tighter drop-shadow-[0_4px_14px_rgba(0,0,0,0.9)]",
+        accentBg: "bg-stone-100", accentText: "text-stone-200", glowColor: "rgba(245,245,244,0.45)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 16, name: "Curved Cursive", font: "'Sacramento', cursive", 
+        styleClass: "text-sky-300 font-normal tracking-wider drop-shadow-[0_3px_12px_rgba(125,211,252,0.7)] text-2xl sm:text-4xl",
+        accentBg: "bg-sky-300", accentText: "text-sky-300", glowColor: "rgba(125,211,252,0.45)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 17, name: "Modern Bubble", font: "'Comfortaa', cursive", 
+        styleClass: "text-violet-300 font-bold tracking-tight drop-shadow-[0_2px_12px_rgba(196,181,253,0.7)]",
+        accentBg: "bg-violet-400", accentText: "text-violet-300", glowColor: "rgba(196,181,253,0.5)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 18, name: "Alex Brush", font: "'Alex Brush', cursive", 
+        styleClass: "text-rose-300 font-normal tracking-widest drop-shadow-[0_4px_14px_rgba(253,164,175,0.7)] text-2xl sm:text-4xl",
+        accentBg: "bg-rose-400", accentText: "text-rose-300", glowColor: "rgba(251,113,133,0.45)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 19, name: "Gothic Blackletter", font: "'UnifrakturMaguntia', cursive", 
+        styleClass: "text-red-400 font-normal tracking-widest drop-shadow-[0_0_15px_rgba(248,113,113,0.7)]",
+        accentBg: "bg-red-500", accentText: "text-red-400", glowColor: "rgba(239,68,68,0.55)",
+        btnText: "text-stone-950"
+      },
+      { 
+        id: 20, name: "Arcade 8-Bit", font: "'Press Start 2P', cursive", 
+        styleClass: "text-yellow-300 font-normal text-xs sm:text-sm tracking-widest leading-loose drop-shadow-[0_0_8px_rgba(253,224,71,0.85)]",
+        accentBg: "bg-yellow-400", accentText: "text-yellow-300", glowColor: "rgba(250,204,21,0.6)",
+        btnText: "text-stone-950"
+      }
     ];
 
     const YOUTUBE_PLAYLIST = [
@@ -82,6 +182,7 @@
         title: "Aankhon Mein Tera Hi Chehra",
         artist: "Aryans",
         youtubeId: "V3vSJyHWFEw",
+        bgVideo: "./videos/bg_1.mp4",
         lyrics: [
           { time: 0, text: "♪ (Intro Instrumental) ♪" },
           { time: 22, text: "Aankhon mein tera hi chehra" },
@@ -100,12 +201,13 @@
         title: "Jahaan Tum Ho",
         artist: "Shrey Singhal",
         youtubeId: "Hxe362w66GI",
+        bgVideo: "./videos/bg_2.mp4",
         lyrics: [
           { time: 0, text: "♪ (Music) ♪" },
           { time: 23, text: "Jahaan tum ho wahin main hoon" },
           { time: 30, text: "Tere na hone se lagta hai main kyun nahi..." },
           { time: 39, text: "Tere hone se jeeta hai dil mera" },
-          { time: 47, text: "Tu hi मेरा dil hai, tu hi meri jaan" },
+          { time: 47, text: "Tu hi mera dil hai, tu hi meri jaan" },
           { time: 58, text: "Tu hi mera kal hai, tu hi mera aaj" },
           { time: 71, text: "Subah ki kirno si jo hai..." }
         ]
@@ -115,6 +217,7 @@
         title: "Teri Yaadein",
         artist: "Atif Aslam",
         youtubeId: "eafo6MoqDPw",
+        bgVideo: "./videos/bg_3.mp4",
         lyrics: [
           { time: 0, text: "♪ (Intro Melodies) ♪" },
           { time: 14, text: "Teri yaadein mulaqaatein..." },
@@ -129,6 +232,7 @@
         title: "Tu Mile Dil Khile",
         artist: "Kumar Sanu & Alka Yagnik",
         youtubeId: "nqTS7ngviwQ",
+        bgVideo: "./videos/bg_4.mp4",
         lyrics: [
           { time: 0, text: "♪ (Melody) ♪" },
           { time: 45, text: "Tu mile dil khile aur jeene ko kya chahiye..." },
@@ -143,6 +247,7 @@
         title: "Tum To Thehre Pardesi",
         artist: "Altaf Raja",
         youtubeId: "HaqGZcvbt1U",
+        bgVideo: "./videos/bg_5.mp4",
         lyrics: [
           { time: 0, text: "♪ (Qawwali Beats) ♪" },
           { time: 40, text: "Tum to thehre pardesi, saath kya nibhaoge..." },
@@ -157,6 +262,7 @@
         title: "Pyaar Tune Kya Kiya",
         artist: "Jubin Nautiyal",
         youtubeId: "gC84vJf0xeU",
+        bgVideo: "./videos/bg_6.mp4",
         lyrics: [
           { time: 0, text: "♪ (Theme Music) ♪" },
           { time: 20, text: "Pyaar tune kya kiya, chain mera liya..." },
@@ -170,6 +276,7 @@
         title: "Chale Aana",
         artist: "Armaan Malik & Amaal Mallik",
         youtubeId: "fWQpb6T89d4",
+        bgVideo: "./videos/bg_7.mp4",
         lyrics: [
           { time: 0, text: "♪ (Soft Piano) ♪" },
           { time: 31, text: "Juda hum ho gaye maana magar ye jaan lo jaana" },
@@ -183,6 +290,7 @@
         title: "Mann Mera",
         artist: "Gajendra Verma",
         youtubeId: "HP2zqQsrsyg",
+        bgVideo: "./videos/bg_8.mp4",
         lyrics: [
           { time: 0, text: "♪ (Acoustic Strums) ♪" },
           { time: 18, text: "Surmayi aankhiyon mein nanha munna ek sapna de jaa re" },
@@ -196,6 +304,7 @@
         title: "Maine Royaan",
         artist: "Tanveer Evan",
         youtubeId: "o7In7se2Kl4",
+        bgVideo: "./videos/bg_9.mp4",
         lyrics: [
           { time: 0, text: "♪ (Melancholy Strings) ♪" },
           { time: 37, text: "Maine royaan, tujhe dhoondha..." },
@@ -209,6 +318,7 @@
         title: "Tera Ghata",
         artist: "Gajendra Verma",
         youtubeId: "0KNk-Joi-NM",
+        bgVideo: "./videos/bg_10.mp4",
         lyrics: [
           { time: 0, text: "♪ (Guitar Rhythm) ♪" },
           { time: 34, text: "Kuchh soch ke bola hoga tumne, yeh pyaar bhi tola hoga tumne" },
@@ -222,6 +332,7 @@
         title: "Tujhe Bhula Diya",
         artist: "Mohit Chauhan & Shekhar Ravjiani",
         youtubeId: "M1JZOQ8-vRU",
+        bgVideo: "./videos/bg_11.mp4",
         lyrics: [
           { time: 0, text: "♪ (Strings & Rain) ♪" },
           { time: 15, text: "Naina laggeyan baarishein, ate sukke sukke sapne vi pijj gaye" },
@@ -235,6 +346,7 @@
         title: "Tujhe Dekhe Bina",
         artist: "Rakesh Sutradhar",
         youtubeId: "mGFlSPG6ZKc",
+        bgVideo: "./videos/bg_12.mp4",
         lyrics: [
           { time: 0, text: "♪ (Acoustic Chords) ♪" },
           { time: 19, text: "Tujhe dekhe bina chain nahi aata..." },
@@ -247,9 +359,10 @@
         title: "Dard",
         artist: "Kushagra & Showkidd",
         youtubeId: "tJ51nR4-tLs",
+        bgVideo: "./videos/bg_13.mp4",
         lyrics: [
           { time: 0, text: "♪ (Beats) ♪" },
-          { time: 9, text: "Dard hua dard hua, dil ko thoda dard hua" },
+          { time: 9, text: "Dard hua दर्द हुआ, dil ko thoda dard hua" },
           { time: 18, text: "Marz hua marz hua, mere liye toh marz hua" },
           { time: 25, text: "Woh saari raatein, woh mulaqaatein yaad aa rahi hain" }
         ]
@@ -259,6 +372,7 @@
         title: "Aaja We Mahiya",
         artist: "Imran Khan",
         youtubeId: "BJtbYaVwyEI",
+        bgVideo: "./videos/bg_14.mp4",
         lyrics: [
           { time: 0, text: "♪ (Drift Waves) ♪" },
           { time: 18, text: "Aaja we mahiya, aaja we mahiya..." },
@@ -271,6 +385,7 @@
         title: "Rula Ke Gaya Ishq",
         artist: "Stebin Ben",
         youtubeId: "g-C8QJH-NWI",
+        bgVideo: "./videos/bg_15.mp4",
         lyrics: [
           { time: 0, text: "♪ (Romantic Sad Melody) ♪" },
           { time: 26, text: "Kaash tu mere haq mein hota, banke yakeen shak mein hota" },
@@ -283,46 +398,80 @@
     function App() {
       const [playlist] = useState(YOUTUBE_PLAYLIST);
       const [currentIndex, setCurrentIndex] = useState(0);
-      const [videoIndex, setVideoIndex] = useState(0);
-      
-      // Default to Style 12: Modern Editorial (index 11)
-      const [fontIndex, setFontIndex] = useState(11);
-      
+      const [videoOffset, setVideoOffset] = useState(0);
+      const [fontIndex, setFontIndex] = useState(11); // Modern Editorial default
       const [isPlaying, setIsPlaying] = useState(false);
+      const [hasUserStarted, setHasUserStarted] = useState(false);
       const [isShuffle, setIsShuffle] = useState(false);
       const [currentTime, setCurrentTime] = useState(0);
       const [duration, setDuration] = useState(0);
       const [isMuted, setIsMuted] = useState(false);
+      const [volume, setVolume] = useState(100);
+      const [showVolIndicator, setShowVolIndicator] = useState(false);
 
       const ytPlayerRef = useRef(null);
       const videoRef = useRef(null);
       const timerRef = useRef(null);
+      const volTimeoutRef = useRef(null);
+
+      // Gestures
+      const touchStartX = useRef(0);
       const touchStartY = useRef(0);
+      const headerTouchStartX = useRef(0);
 
       const currentTrack = playlist[currentIndex];
       const currentTypography = TYPOGRAPHY_STYLES[fontIndex];
 
-      // YouTube API Initialization
+      const currentVideoSrc = useMemo(() => {
+        const totalVideos = BG_VIDEOS.length;
+        const mappedIdx = (currentIndex + videoOffset + totalVideos) % totalVideos;
+        return BG_VIDEOS[mappedIdx];
+      }, [currentIndex, videoOffset]);
+
+      const changeTrack = (direction) => {
+        let nextIdx;
+        if (isShuffle) {
+          nextIdx = Math.floor(Math.random() * playlist.length);
+        } else {
+          nextIdx = direction === "next" 
+            ? (currentIndex + 1) % playlist.length 
+            : (currentIndex - 1 + playlist.length) % playlist.length;
+        }
+        setCurrentIndex(nextIdx);
+        setVideoOffset(0);
+        setCurrentTime(0);
+      };
+
+      // Persistent YouTube Player Initialization with autoplay permission
       useEffect(() => {
-        const setupYouTube = () => {
-          if (window.YT && window.YT.Player) {
-            ytPlayerRef.current = new window.YT.Player("yt-hidden-audio", {
-              height: "1",
-              width: "1",
+        let isCancelled = false;
+
+        const initPlayer = () => {
+          if (!window.YT || !window.YT.Player || ytPlayerRef.current) return false;
+          try {
+            ytPlayerRef.current = new window.YT.Player("yt-player-persistent", {
+              height: "250",
+              width: "250",
               videoId: currentTrack.youtubeId,
               playerVars: {
                 autoplay: 0,
                 controls: 0,
                 disablekb: 1,
+                enablejsapi: 1,
                 fs: 0,
                 modestbranding: 1,
-                playsinline: 1
+                playsinline: 1,
+                rel: 0
               },
               events: {
                 onReady: (e) => {
-                  setDuration(e.target.getDuration() || 180);
+                  if (!isCancelled) {
+                    setDuration(e.target.getDuration() || 180);
+                    e.target.setVolume(volume);
+                  }
                 },
                 onStateChange: (e) => {
+                  if (isCancelled) return;
                   if (e.data === window.YT.PlayerState.PLAYING) {
                     setIsPlaying(true);
                     setDuration(e.target.getDuration() || 180);
@@ -333,19 +482,29 @@
                   } else if (e.data === window.YT.PlayerState.ENDED) {
                     changeTrack("next");
                   }
+                },
+                onError: () => {
+                  changeTrack("next");
                 }
               }
             });
+            return true;
+          } catch (err) {
+            return false;
           }
         };
 
-        if (!window.YT) {
-          window.onYouTubeIframeAPIReady = setupYouTube;
+        if (window.YT && window.YT.Player) {
+          initPlayer();
         } else {
-          setupYouTube();
+          window.onYouTubeIframeAPIReady = initPlayer;
+          const poll = setInterval(() => {
+            if (initPlayer()) clearInterval(poll);
+          }, 100);
         }
 
         return () => {
+          isCancelled = true;
           if (ytPlayerRef.current?.destroy) ytPlayerRef.current.destroy();
         };
       }, []);
@@ -358,44 +517,45 @@
               const time = ytPlayerRef.current.getCurrentTime();
               setCurrentTime(time || 0);
             }
-          }, 150);
+          }, 50);
         } else {
           clearInterval(timerRef.current);
         }
         return () => clearInterval(timerRef.current);
       }, [isPlaying]);
 
-      // Video source update on track change
+      // Load Track on Index Change
       useEffect(() => {
         if (ytPlayerRef.current?.loadVideoById) {
           ytPlayerRef.current.loadVideoById(currentTrack.youtubeId);
           setCurrentTime(0);
-          if (isPlaying) {
+          if (isPlaying || hasUserStarted) {
             ytPlayerRef.current.playVideo();
           }
         }
       }, [currentIndex]);
 
-      const togglePlay = () => {
-        if (!ytPlayerRef.current) return;
-        if (isPlaying) {
-          ytPlayerRef.current.pauseVideo();
-        } else {
+      // First-gesture unlock handler
+      const handleUserStart = () => {
+        setHasUserStarted(true);
+        if (videoRef.current) videoRef.current.play().catch(() => {});
+        if (ytPlayerRef.current && typeof ytPlayerRef.current.playVideo === "function") {
           ytPlayerRef.current.playVideo();
         }
       };
 
-      const changeTrack = (direction) => {
-        let nextIdx;
-        if (isShuffle) {
-          nextIdx = Math.floor(Math.random() * playlist.length);
-        } else {
-          nextIdx = direction === "next" 
-            ? (currentIndex + 1) % playlist.length
-            : (currentIndex - 1 + playlist.length) % playlist.length;
+      const togglePlay = () => {
+        if (!hasUserStarted) {
+          handleUserStart();
+          return;
         }
-        setCurrentIndex(nextIdx);
-        setCurrentTime(0);
+        if (!ytPlayerRef.current) return;
+        if (isPlaying) {
+          if (typeof ytPlayerRef.current.pauseVideo === 'function') ytPlayerRef.current.pauseVideo();
+        } else {
+          if (typeof ytPlayerRef.current.playVideo === 'function') ytPlayerRef.current.playVideo();
+          if (videoRef.current) videoRef.current.play().catch(() => {});
+        }
       };
 
       const seekRelative = (seconds) => {
@@ -404,6 +564,21 @@
           ytPlayerRef.current.seekTo(newTime, true);
           setCurrentTime(newTime);
         }
+      };
+
+      const adjustVolume = (delta) => {
+        const nextVol = Math.min(100, Math.max(0, volume + delta));
+        setVolume(nextVol);
+        if (ytPlayerRef.current?.setVolume) {
+          ytPlayerRef.current.setVolume(nextVol);
+        }
+        if (isMuted && nextVol > 0) {
+          ytPlayerRef.current?.unMute();
+          setIsMuted(false);
+        }
+        setShowVolIndicator(true);
+        clearTimeout(volTimeoutRef.current);
+        volTimeoutRef.current = setTimeout(() => setShowVolIndicator(false), 1200);
       };
 
       const toggleMute = () => {
@@ -417,24 +592,39 @@
         }
       };
 
-      const nextBackgroundVideo = (e) => {
-        e.stopPropagation();
-        setVideoIndex((prev) => (prev + 1) % BG_VIDEOS.length);
-      };
-
       const nextTypography = (e) => {
         e.stopPropagation();
         setFontIndex((prev) => (prev + 1) % TYPOGRAPHY_STYLES.length);
       };
 
-      const handleTouchStart = (e) => { 
-        touchStartY.current = e.touches[0].clientY; 
+      // Gestures: Screen Swipes (Left/Right = Track, Up/Down = Volume)
+      const handleTouchStart = (e) => {
+        touchStartX.current = e.touches[0].clientX;
+        touchStartY.current = e.touches[0].clientY;
       };
 
       const handleTouchEnd = (e) => {
-        const diffY = touchStartY.current - e.changedTouches[0].clientY;
-        if (diffY > 60) changeTrack("next");
-        else if (diffY < -60) changeTrack("prev");
+        const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+        const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          if (deltaX < -50) changeTrack("next");
+          else if (deltaX > 50) changeTrack("prev");
+        } else {
+          if (deltaY < -40) adjustVolume(10);
+          else if (deltaY > 40) adjustVolume(-10);
+        }
+      };
+
+      // Gestures: Top Video Bar Swipe
+      const handleHeaderTouchStart = (e) => {
+        headerTouchStartX.current = e.touches[0].clientX;
+      };
+
+      const handleHeaderTouchEnd = (e) => {
+        const deltaX = e.changedTouches[0].clientX - headerTouchStartX.current;
+        if (deltaX < -30) setVideoOffset((prev) => prev + 1);
+        else if (deltaX > 30) setVideoOffset((prev) => prev - 1);
       };
 
       // Realtime lyric tracker
@@ -466,77 +656,110 @@
 
       return (
         <div 
-          className="relative w-full h-[100dvh] bg-stone-950 overflow-hidden flex flex-col justify-between"
+          className="relative w-full h-[100dvh] bg-stone-950 overflow-hidden flex flex-col justify-between transition-colors duration-500"
+          style={{ fontFamily: currentTypography.font }}
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          {/* YouTube Hidden Audio Node */}
-          <div className="absolute -top-[9999px] -left-[9999px] opacity-0 pointer-events-none" aria-hidden="true">
-            <div id="yt-hidden-audio"></div>
+          {/* Active YouTube Frame Container (Rendered with autoplay permissions) */}
+          <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.001] flex items-center justify-center overflow-hidden">
+            <div id="yt-player-persistent"></div>
           </div>
 
           {/* Background Video Layer */}
-          <video
-            ref={videoRef}
-            key={BG_VIDEOS[videoIndex]}
-            src={BG_VIDEOS[videoIndex]}
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-            autoPlay
-            loop
-            muted
-            playsInline
+          <video 
+            ref={videoRef} 
+            key={currentVideoSrc} 
+            src={currentVideoSrc} 
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0" 
+            autoPlay 
+            loop 
+            muted 
+            playsInline 
           />
 
           {/* Ambient Vignette & Screen Tap */}
           <div 
-            className="absolute inset-0 bg-gradient-to-b from-stone-950/75 via-stone-950/30 to-stone-950/90 cursor-pointer"
-            onClick={togglePlay}
+            className="absolute inset-0 bg-gradient-to-b from-stone-950/75 via-stone-950/30 to-stone-950/90 cursor-pointer z-10"
+            onClick={togglePlay} 
           />
 
-          {/* Top Header */}
-          <header className="relative z-20 safe-top px-4 flex items-center justify-between w-full">
-            <div className="text-[11px] sm:text-xs uppercase tracking-wider text-amber-400 font-bold flex items-center gap-1.5 drop-shadow">
-              <span className={`w-2 h-2 rounded-full bg-amber-400 ${isPlaying ? 'animate-pulse' : ''}`}></span>
+          {/* First-Tap Overlay Handshake (Guarantees YouTube Audio Unlock) */}
+          {!hasUserStarted && (
+            <div 
+              onClick={handleUserStart}
+              className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex flex-col items-center justify-center cursor-pointer p-4 text-center"
+            >
+              <div 
+                className={`w-16 h-16 rounded-full ${currentTypography.accentBg} ${currentTypography.btnText} flex items-center justify-center shadow-lg animate-pulse mb-3`}
+                style={{ boxShadow: `0 0 25px ${currentTypography.glowColor}` }}
+              >
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" className="ml-1"><path d="M8 5v14l11-7z"/></svg>
+              </div>
+              <h2 className={`text-lg font-bold ${currentTypography.accentText} uppercase tracking-widest`}>Tap to Play Music</h2>
+              <p className="text-xs text-neutral-400 mt-1">Enables synced audio & visual ambience</p>
+            </div>
+          )}
+
+          {/* Volume HUD Indicator */}
+          {showVolIndicator && (
+            <div className="absolute top-20 left-1/2 -translate-x-1/2 z-30 bg-black/60 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10 flex items-center gap-2 text-xs font-mono transition-opacity">
+              <span>{volume === 0 ? "🔇" : "🔊"}</span>
+              <div className="w-20 bg-white/20 h-1 rounded-full overflow-hidden">
+                <div className={`${currentTypography.accentBg} h-full transition-all`} style={{ width: `${volume}%` }}></div>
+              </div>
+              <span className={currentTypography.accentText}>{volume}%</span>
+            </div>
+          )}
+
+          {/* Top Header & Video Swipe Bar */}
+          <header 
+            onTouchStart={handleHeaderTouchStart}
+            onTouchEnd={handleHeaderTouchEnd}
+            className="relative z-20 safe-top px-4 flex items-center justify-between w-full"
+          >
+            <div className={`text-[11px] sm:text-xs uppercase tracking-wider ${currentTypography.accentText} font-bold flex items-center gap-1.5 drop-shadow transition-colors duration-500`}>
+              <span className={`w-2 h-2 rounded-full ${currentTypography.accentBg} ${isPlaying ? 'animate-pulse' : ''}`}></span>
               Aesthetic Ambience
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Typography Switcher Button */}
+              {/* Invisible / Blended Glass Typography Bar */}
               <button 
-                onClick={nextTypography}
-                className="bg-black/60 hover:bg-black/80 border border-amber-400/40 active:scale-95 text-amber-300 font-semibold px-2.5 sm:px-3.5 py-1 rounded-full text-[11px] sm:text-xs transition backdrop-blur-md flex items-center gap-1.5 shadow-lg"
+                onClick={nextTypography} 
+                className="bg-white/[0.04] hover:bg-white/[0.12] active:bg-white/[0.18] border border-white/[0.08] text-white/70 hover:text-white font-medium px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs transition-all backdrop-blur-[2px] flex items-center gap-1.5 shadow-sm" 
                 title="Change Typography Style"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="opacity-60"><path d="M4 7V4h16v3M9 20h6M12 4v16"/></svg>
                 <span className="max-w-[85px] sm:max-w-[120px] truncate">{currentTypography.name}</span>
               </button>
 
-              {/* Background Video Switcher */}
+              {/* Video Bar (Swipeable / Clickable) */}
               <button 
-                onClick={nextBackgroundVideo}
-                className="bg-black/60 hover:bg-black/80 border border-white/20 active:scale-95 text-neutral-300 font-medium px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs transition backdrop-blur-md flex items-center gap-1"
-                title="Switch Background Video"
+                onClick={() => setVideoOffset((prev) => prev + 1)}
+                className="bg-black/40 hover:bg-black/60 border border-white/10 active:scale-95 text-neutral-300 font-medium px-2.5 sm:px-3 py-1 rounded-full text-[11px] sm:text-xs backdrop-blur-md flex items-center gap-1"
+                title="Swipe or click to change background video"
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
-                <span>#{videoIndex + 1}</span>
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polygon points="23 7 16 12 23 17 23 7"></polygon><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                <span>bg_{((currentIndex + videoOffset + BG_VIDEOS.length) % BG_VIDEOS.length) + 1}</span>
               </button>
             </div>
           </header>
 
           {/* ================= CENTER SYNCHRONIZED LYRICS ================= */}
-          <main className="relative z-10 flex-1 flex flex-col items-center justify-center px-6 text-center pointer-events-none my-auto">
+          <main className="relative z-20 flex-1 flex flex-col items-center justify-center px-6 text-center pointer-events-none my-auto">
             <div className="max-w-2xl flex flex-col items-center gap-3 transition-all duration-500">
               <h1 
-                key={activeText}
-                style={{ fontFamily: currentTypography.font }}
-                className={`text-2xl sm:text-4xl md:text-5xl leading-tight sm:leading-snug transition-all duration-300 lyric-active ${currentTypography.styleClass}`}
+                key={activeText} 
+                style={{ fontFamily: currentTypography.font }} 
+                className={`text-2xl sm:text-4xl md:text-5xl leading-tight sm:leading-snug transition-all duration-150 lyric-active ${currentTypography.styleClass}`}
               >
                 {activeText}
               </h1>
 
               {nextText && (
                 <p 
-                  style={{ fontFamily: currentTypography.font }}
+                  style={{ fontFamily: currentTypography.font }} 
                   className="text-sm sm:text-lg md:text-xl text-white/40 tracking-wider font-light italic mt-1 line-clamp-1 transition-opacity duration-300"
                 >
                   {nextText}
@@ -545,13 +768,12 @@
             </div>
           </main>
 
-          {/* ================= BOTTOM MUSIC CONTROLS (SVG ICONS) ================= */}
+          {/* ================= BOTTOM MUSIC CONTROLS (THEMED UI) ================= */}
           <footer className="relative z-20 safe-bottom px-4 sm:px-6 flex flex-col gap-3 bg-gradient-to-t from-black via-black/85 to-transparent pb-4">
-            
             {/* Progress Bar & Timestamps */}
             <div className="w-full flex flex-col gap-1">
               <div 
-                className="w-full h-4 flex items-center cursor-pointer touch-none"
+                className="w-full h-4 flex items-center cursor-pointer touch-none" 
                 onClick={(e) => {
                   const rect = e.currentTarget.getBoundingClientRect();
                   const pos = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
@@ -562,7 +784,7 @@
                 }}
               >
                 <div className="w-full bg-white/20 h-1 rounded-full overflow-hidden">
-                  <div className="bg-amber-400 h-full transition-all duration-75" style={{ width: `${progressPercent}%` }} />
+                  <div className={`${currentTypography.accentBg} h-full transition-all duration-75`} style={{ width: `${progressPercent}%` }} />
                 </div>
               </div>
               <div className="flex justify-between text-[10px] sm:text-xs text-stone-400 font-mono px-0.5">
@@ -571,20 +793,21 @@
               </div>
             </div>
 
-            {/* Song Meta & Button Toolbar */}
+            {/* Song Meta & Themed Controls */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
               <div className="min-w-0 pr-2 text-center sm:text-left">
-                <h2 className="text-sm sm:text-base font-bold text-amber-300 truncate drop-shadow">{currentTrack.title}</h2>
-                <p className="text-xs text-neutral-400 truncate">{currentTrack.artist}</p>
+                <h2 className={`text-sm sm:text-base font-bold ${currentTypography.accentText} truncate drop-shadow transition-colors duration-500`}>
+                  {currentTrack.title}
+                </h2>
+                <p className="text-xs text-neutral-400 truncate opacity-80">{currentTrack.artist}</p>
               </div>
 
-              {/* Clean SVG Controls Toolbar */}
+              {/* Controls Toolbar */}
               <div className="flex items-center justify-center sm:justify-end gap-3 sm:gap-4">
-                
                 {/* Shuffle */}
                 <button 
                   onClick={() => setIsShuffle(!isShuffle)} 
-                  className={`p-1.5 transition active:scale-90 ${isShuffle ? "text-amber-400" : "text-neutral-400 hover:text-white"}`} 
+                  className={`p-1.5 transition active:scale-90 ${isShuffle ? currentTypography.accentText : "text-neutral-400 hover:text-white"}`} 
                   title="Shuffle"
                 >
                   <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
@@ -594,7 +817,7 @@
                 <button 
                   onClick={() => changeTrack("prev")} 
                   className="p-1.5 text-neutral-200 hover:text-white active:scale-90 transition" 
-                  title="Previous Track"
+                  title="Previous Track (or swipe right)"
                 >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
                 </button>
@@ -605,13 +828,14 @@
                   className="p-1.5 text-neutral-300 hover:text-white active:scale-90 transition" 
                   title="Rewind 10 seconds"
                 >
-                   <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
                 </button>
 
-                {/* Play / Pause Primary Button */}
+                {/* Play / Pause Primary Button with Dynamic Style Glow */}
                 <button 
                   onClick={togglePlay} 
-                  className="w-12 h-12 flex items-center justify-center bg-amber-400 text-stone-950 rounded-full transition transform hover:scale-105 active:scale-90 shadow-[0_0_15px_rgba(251,191,36,0.3)] shrink-0" 
+                  className={`w-12 h-12 flex items-center justify-center ${currentTypography.accentBg} ${currentTypography.btnText} rounded-full transition transform hover:scale-105 active:scale-90 shrink-0`} 
+                  style={{ boxShadow: `0 0 20px ${currentTypography.glowColor}` }}
                   title={isPlaying ? "Pause" : "Play"}
                 >
                   {isPlaying ? (
@@ -634,7 +858,7 @@
                 <button 
                   onClick={() => changeTrack("next")} 
                   className="p-1.5 text-neutral-200 hover:text-white active:scale-90 transition" 
-                  title="Next Track"
+                  title="Next Track (or swipe left)"
                 >
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
                 </button>
